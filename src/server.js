@@ -317,6 +317,19 @@ Responda de forma direta e prática, sem introduções desnecessárias.`;
         res.json({ advice });
     } catch (error) {
         console.error('Erro na API da OpenRouter:', error.message);
+        if (error.response) {
+            console.error('Status:', error.response.status);
+            console.error('Data:', JSON.stringify(error.response.data, null, 2));
+
+            if (error.response.status === 404) {
+                console.error('ERRO CRÍTICO: O modelo anthropic/claude-3-haiku pode ter sido descontinuado ou renomeado no OpenRouter.');
+                console.error('Ação necessária: Verificar modelos disponíveis em https://openrouter.ai/models e atualizar o código.');
+                return res.status(500).json({
+                    error: 'Erro ao obter recomendações de IA: Modelo não encontrado (404). O modelo pode ter sido descontinuado.',
+                    details: 'Verifique https://openrouter.ai/models para modelos disponíveis e atualize o código.'
+                });
+            }
+        }
         res.status(500).json({ error: `Erro ao obter recomendações de IA: ${error.message}` });
     }
 });
@@ -415,6 +428,19 @@ Responda em formato JSON válido com esta estrutura:
         }
     } catch (error) {
         console.error('Erro na API de detecção de fenômenos extremos:', error.message);
+        if (error.response) {
+            console.error('Status:', error.response.status);
+            console.error('Data:', JSON.stringify(error.response.data, null, 2));
+
+            if (error.response.status === 404) {
+                console.error('ERRO CRÍTICO: O modelo anthropic/claude-3-haiku pode ter sido descontinuado ou renomeado no OpenRouter.');
+                console.error('Ação necessária: Verificar modelos disponíveis em https://openrouter.ai/models e atualizar o código.');
+                return res.status(500).json({
+                    error: 'Erro ao analisar fenômenos extremos: Modelo não encontrado (404). O modelo pode ter sido descontinuado.',
+                    details: 'Verifique https://openrouter.ai/models para modelos disponíveis e atualize o código.'
+                });
+            }
+        }
         res.status(500).json({ error: `Erro ao analisar fenômenos extremos: ${error.message}` });
     }
 });
