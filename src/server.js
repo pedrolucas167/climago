@@ -5,7 +5,7 @@ const morgan = require('morgan');
 const path = require('path');
 const app = express();
 
-const API_KEY = process.env.OPENWEATHER_API_KEY;
+const API_KEY = process.env.OPENWEATHER_API_KEY || process.env.API_KEY;
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 
 const weatherCache = new Map();
