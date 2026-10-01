@@ -22,6 +22,31 @@ function switchTab(tabName) {
     if (selectedTab) {
         selectedTab.classList.add('active');
     }
+
+    function setupRadarLayers() {
+        const map = document.querySelector('.radar-map');
+        const buttons = document.querySelectorAll('[data-radar-layer-button]');
+        if (!map || !buttons.length) return;
+
+        const labels = {
+            precipitation: ['CHUVA', 'Intensidade'],
+            clouds: ['NUVENS', 'Cobertura'],
+            wind: ['VENTO', 'Direção e velocidade']
+        };
+
+        buttons.forEach((button) => {
+            button.addEventListener('click', () => {
+                const layer = button.dataset.radarLayerButton;
+                if (!labels[layer]) return;
+                map.dataset.radarLayer = layer;
+                buttons.forEach((item) => item.classList.toggle('active', item === button));
+                document.getElementById('radar-layer-name').textContent = labels[layer][0];
+                document.getElementById('radar-layer-status').textContent = labels[layer][1];
+            });
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', setupRadarLayers);
     
     // Add active class to selected nav item
     const navItems = document.querySelectorAll('.bottom-nav-item');
