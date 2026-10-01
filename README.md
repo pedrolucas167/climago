@@ -2,18 +2,26 @@
 
 ![image](https://github.com/user-attachments/assets/0adc087f-3f31-40e9-a77b-1f2317c3caa7)
 
-ClimaGo é um aplicativo web robusto que permite consultar o clima em tempo real de qualquer cidade usando a API da OpenWeatherMap. Construído com Node.js, Express e uma interface moderna em HTML/JavaScript, ele oferece funcionalidades avançadas como atualização automática, previsão do tempo, geolocalização, cache inteligente, detecção de fenômenos extremos com IA e exportação de dados.
+ClimaGo é um observatório meteorológico mobile-first para acompanhar o clima em tempo real com uma experiência visual inspirada no conceito **Aetheris Atmospheric Design System**. A interface combina glassmorphism atmosférico, telemetria de alta legibilidade e navegação por áreas para transformar dados meteorológicos em uma leitura rápida e sensorial.
+
+O produto está disponível em produção em [climago-five.vercel.app](https://climago-five.vercel.app).
 
 ## 🚀 Funcionalidades
 
-### Principais
-- **🌡️ Clima em tempo real**: Consulta atual do clima por nome da cidade com indicador de última atualização
-- **🔄 Atualização automática**: Opção de atualizar os dados automaticamente a cada 5 minutos
-- **📅 Previsão do tempo**: Exibição da previsão para os próximos 5 dias e previsão horária (24h)
-- **📍 Geolocalização**: Botão para usar a localização atual do usuário automaticamente com rastreamento contínuo
-- **🌬️ Qualidade do ar**: Informações sobre AQI e poluentes atmosféricos
-- **☀️ Índice UV**: Monitoramento do índice UV com recomendações de proteção
-- **🌍 Detecção de fenômenos extremos**: Análise com IA para identificar tempestades, furacões, ondas de calor, etc.
+### Áreas da interface
+- **☀️ Hoje**: Dashboard principal com temperatura atual, sensação térmica, mínimas e máximas, umidade, vento, status do radar e nowcasting de chuva.
+- **📈 Métricas**: Instrumentação atmosférica com cards para temperatura, umidade, vento, visibilidade, pressão e sensação térmica, além de indicadores de conforto e qualidade do ar.
+- **📡 Radar**: Mapa meteorológico visual com sweep animado, células de precipitação, localização atual e filtros de precipitação, nuvens e vento.
+- **📅 10 Dias**: Perspectiva estendida com amplitude térmica, probabilidade de chuva e efemérides do ciclo solar.
+
+### Dados e recursos meteorológicos
+- **🌡️ Clima em tempo real**: Consulta por cidade ou coordenadas com indicação de dados em cache.
+- **🔄 Atualização automática**: Atualização opcional dos dados a cada 5 minutos.
+- **⏱️ Previsão horária**: Faixa horizontal com as próximas horas e probabilidade de precipitação.
+- **📍 Geolocalização**: Uso da localização atual e rastreamento contínuo autorizado pelo usuário.
+- **🌬️ Qualidade do ar**: AQI e principais poluentes atmosféricos.
+- **☀️ Índice UV**: Intensidade atual e recomendações de proteção.
+- **🌍 Fenômenos extremos**: Análise com IA para identificar condições meteorológicas de risco.
 
 ### Funcionalidades Avançadas
 - **🤖 Recomendações de IA**: Análise inteligente dos dados climáticos com sugestões personalizadas de vestuário, atividades e precauções
@@ -23,10 +31,13 @@ ClimaGo é um aplicativo web robusto que permite consultar o clima em tempo real
 - **⚙️ Configurações**: Personalize unidades (métrico/imperial), idioma e notificações
 - **🔔 Alertas**: Notificações push para fenômenos climáticos perigosos
 
-### Performance e UX
+### Performance, UX e identidade visual
 - **💾 Cache inteligente**: Sistema de cache no servidor para reduzir chamadas à API e melhorar performance
 - **📜 Histórico de buscas**: Armazenamento local das 5 últimas cidades pesquisadas
-- **🎨 Interface moderna**: Design responsivo com suporte a modo claro/escuro e animações suaves
+- **🎨 Aetheris UI**: Tema escuro atmosférico com superfícies translúcidas, bordas especulares, gradientes radiais e animações de telemetria
+- **📱 Mobile-first**: Shell otimizado para telas de celular, com navegação inferior persistente e conteúdo adaptado para tablets e desktop
+- **🔤 Tipografia de telemetria**: Plus Jakarta Sans para leituras principais e Inter para dados auxiliares
+- **🎨 Paleta meteorológica**: Electric Cyan para estado normal, Storm Indigo para pressão, Solar Amber para índices solares, Breeze Emerald para condições estáveis e Thermal Crimson para alertas
 - **⚡ Lazy loading**: Otimização de imagens para carregamento mais rápido
 - **📱 PWA**: Progressive Web App instalável para experiência nativa
 - **♿ Acessibilidade**: Suporte a leitores de tela e navegação por teclado
@@ -42,10 +53,20 @@ ClimaGo é um aplicativo web robusto que permite consultar o clima em tempo real
 - **Morgan**: Logging de requisições HTTP
 
 ### Frontend
-- **HTML5/CSS3**: Interface moderna e responsiva
+- **HTML5/CSS3**: Interface responsiva baseada no Aetheris Atmospheric Design System
 - **JavaScript (ES6+)**: Lógica do frontend com funcionalidades avançadas
 - **Service Worker**: Para modo offline e cache
 - **PWA Manifest**: Para instalação como aplicativo nativo
+
+### Direção visual
+
+A interface segue uma linguagem de **Atmospheric Glassmorphism with Precision Telemetry**:
+
+- Canvas escuro em tons `#0f131d` e `#0a0e18`, inspirado em observação noturna e instrumentação aeronáutica.
+- Cards de telemetria com transparência, `backdrop-filter`, bordas finas e sombras profundas.
+- Hierarquia mobile-first: leitura atual, previsão horária, métricas, radar e previsão estendida.
+- Valores principais em alto contraste e unidades/identificadores em labels compactos com espaçamento ampliado.
+- Componentes ativos usam brilho ciano e estados de risco usam âmbar ou crimson sem poluir a leitura.
 
 ### APIs Externas
 - **OpenWeatherMap API**: Fonte dos dados de clima, previsão, qualidade do ar e UV
@@ -90,15 +111,16 @@ Siga os passos abaixo para rodar o ClimaGo localmente:
 
 ## 📖 Uso
 
-### Busca Básica
+### Fluxo principal
 - **Buscar clima por cidade**: Digite o nome da cidade e clique em "Buscar" ou pressione Enter
 - **Sugestões automáticas**: O campo de busca oferece sugestões das cidades mais populares
-- **Geolocalização**: Clique no botão 📍 para usar sua localização atual
-- **Rastreamento contínuo**: Clique novamente no botão 📍 para ativar/desativar o rastreamento contínuo
+- **Geolocalização**: Use o botão de localização para consultar a estação mais próxima
+- **Navegação**: Alterne entre Hoje, Métricas, Radar e 10 Dias pela barra inferior
+- **Atualização**: O status da estação e do radar indica quando os dados estão sincronizados ou em cache
 
 ### Funcionalidades Avançadas
-- **Atualização automática**: Marque a checkbox "Atualização automática" para atualizar os dados a cada 5 minutos
-- **Previsão do tempo**: A previsão para os próximos 5 dias e horária é exibida automaticamente após buscar uma cidade
+- **Atualização automática**: Ative a atualização automática para consultar os dados a cada 5 minutos
+- **Previsão do tempo**: A previsão horária aparece no dashboard e a previsão estendida na aba "10 Dias"
 - **Recomendações de IA**: Clique no botão "🤖 Recomendações" para receber sugestões personalizadas
 - **Fenômenos extremos**: Clique no botão "🌍 Fenômenos Extremos" para análise de condições perigosas
 - **Exportar dados**: Use o botão "📊 Exportar" para baixar dados em PDF, CSV ou JSON
@@ -156,7 +178,13 @@ ClimaGo/
 ## 🚀 Deploy
 
 ### Vercel
-O projeto está configurado para deploy na Vercel. Basta conectar seu repositório e a Vercel fará o deploy automático.
+O projeto está configurado para deploy na Vercel por meio de `vercel.json`. Para publicar:
+
+```bash
+vercel deploy --prod
+```
+
+Configure `OPENWEATHER_API_KEY` e, opcionalmente, `OPENROUTER_API_KEY` nas variáveis de ambiente do projeto. O deploy de produção atual é [climago-five.vercel.app](https://climago-five.vercel.app).
 
 ### Outros Plataformas
 Para deploy em outras plataformas, certifique-se de:
