@@ -5,12 +5,95 @@ let currentCity = null;
 let currentWeatherData = null;
 const UPDATE_INTERVAL = 5 * 60 * 1000;
 
+// Tab Navigation
+function switchTab(tabName) {
+    // Hide all tabs
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Remove active class from nav items
+    document.querySelectorAll('.bottom-nav-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    
+    // Show selected tab
+    const selectedTab = document.getElementById(`tab-${tabName}`);
+    if (selectedTab) {
+        selectedTab.classList.add('active');
+    }
+    
+    // Add active class to selected nav item
+    const navItems = document.querySelectorAll('.bottom-nav-item');
+    const tabIndex = ['today', 'metrics', 'radar', 'forecast'].indexOf(tabName);
+    if (navItems[tabIndex]) {
+        navItems[tabIndex].classList.add('active');
+    }
+    
+    // Load content for specific tabs
+    if (tabName === 'metrics' && currentWeatherData) {
+        loadMetricsTab();
+    } else if (tabName === 'forecast' && currentWeatherData) {
+        loadForecast10DaysTab();
+    }
+}
+
+// Load Metrics Tab Content
+function loadMetricsTab() {
+    const metricsContent = document.getElementById('metrics-content');
+    if (!metricsContent || !currentWeatherData) return;
+
+    const { main, wind, visibility } = currentWeatherData;
+    
+    const metrics = [
+        { icon: 'thermometer', label: 'Temperatura', value: `${Math.round(main.temp)}°C` },
+        { icon: 'droplets', label: 'Umidade', value: `${main.humidity}%` },
+        { icon: 'wind', label: 'Vento', value: `${wind.speed} m/s` },
+        { icon: 'eye', label: 'Visibilidade', value: `${(visibility / 1000).toFixed(1)} km` },
+        { icon: 'gauge', label: 'Pressão', value: `${main.pressure} hPa` },
+        { icon: 'thermometer-sun', label: 'Sensação', value: `${Math.round(main.feels_like)}°C` },
+    ];
+
+    metricsContent.innerHTML = metrics.map(metric => `
+        <div class="telemetry-item">
+            <i data-lucide="${metric.icon}" class="telemetry-icon"></i>
+            <p class="telemetry-value">${metric.value}</p>
+            <p class="telemetry-label">${metric.label}</p>
+        </div>
+    `).join('');
+    
+    // Initialize Lucide icons
+    lucide.createIcons();
+}
+
+// Load 10 Days Forecast Tab Content
+function loadForecast10DaysTab() {
+    const forecastContent = document.getElementById('forecast-10-content');
+    if (!forecastContent || !currentWeatherData) {
+        forecastContent.innerHTML = '<p class="card-description">Carregue os dados climáticos primeiro.</p>';
+        return;
+    }
+
+    // Get forecast data from the forecast section if available
+    const forecastElement = document.getElementById('forecast');
+    if (!forecastElement || forecastElement.style.display === 'none') {
+        forecastContent.innerHTML = '<p class="card-description">Previsão não disponível. Busque o clima de uma cidade primeiro.</p>';
+        return;
+    }
+
+    // Clone the forecast content
+    forecastContent.innerHTML = forecastElement.innerHTML;
+}
+
 // Variáveis para gerenciamento de instalação PWA
 let deferredPrompt;
 let isInstalled = false;
 
 // Detectar se o app já está instalado
 window.addEventListener('load', () => {
+    // Initialize Lucide icons
+    lucide.createIcons();
+    
     // Verificar se o app está em modo standalone (já instalado)
     if (window.navigator.standalone === true) {
         isInstalled = true;
@@ -434,34 +517,27 @@ async function getExtremePhenomena(weatherData, forecastData) {
 
 function displayForecast(data) {
     const forecastElement = document.getElementById('forecast');
+    const forecast10Element = document.getElementById('forecast-10-content');
     
     const dailyForecasts = data.list.filter(item => 
         item.dt_txt.includes('12:00:00')
-    ).slice(0, 5);
+    ).slice(0, 10);
     
-    const htmlContent = `
-        <div class="forecast-container">
-            <h3>Previsão para os próximos 5 dias</h3>
-            <div class="forecast-grid">
-                ${dailyForecasts.map(day => `
-                    <div class="forecast-item">
-                        <p class="forecast-date">${new Date(day.dt * 1000).toLocaleDateString('pt-BR', { weekday: 'short', day: 'numeric' })}</p>
-                        <img src="https://openweathermap.org/img/wn/${day.weather[0].icon}.png" 
-                             alt="${day.weather[0].description}" 
-                             class="forecast-icon"
-                             loading="lazy"
-                             width="50"
-                             height="50">
-                        <p class="forecast-temp">${Math.round(day.main.temp)}°C</p>
-                        <p class="forecast-desc">${day.weather[0].description}</p>
-                    </div>
-                `).join('')}
-            </div>
-        </div>
-    `;
+    const htmlContent = `<div class="forecast-container"><h3>Previsão atual</h3><p class="muted-text">Dados sincronizados com a estação local.</p></div>`;
+    const listContent = dailyForecasts.map((day, index) => {
+        const date = new Date(day.dt * 1000);
+        const label = index === 0 ? 'Hoje' : date.toLocaleDateString('pt-BR', { weekday: 'long' });
+        const icon = day.weather[0].main.toLowerCase().includes('rain') ? 'rainy' : day.weather[0].main.toLowerCase().includes('cloud') ? 'cloud' : 'sunny';
+        return `<article class="forecast-item ${index === 0 ? 'today' : ''}">
+            <div class="day">${label}<span class="date">${date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}</span></div>
+            <div class="condition"><span class="material-symbols-outlined">${icon}</span>${Math.round(day.pop * 100)}%</div>
+            <div class="temps"><span>${Math.round(day.main.temp_min)}°</span><i class="range"></i><strong>${Math.round(day.main.temp_max)}°</strong></div>
+        </article>`;
+    }).join('');
     
     forecastElement.innerHTML = htmlContent;
     forecastElement.style.display = 'block';
+    if (forecast10Element) forecast10Element.innerHTML = listContent || '<p class="muted-text">Previsão indisponível.</p>';
 }
 
 function displayNextDayForecast(data) {
@@ -637,62 +713,17 @@ async function getWeather(isAutoUpdate = false) {
 function displayWeather(data) {
     const weatherElement = document.getElementById('weather');
     const { name, sys, main, weather, wind, cached } = data;
-    const updateTime = new Date().toLocaleTimeString('pt-BR');
-
-    const htmlContent = `
-        <div class="weather-hero">
-            <div class="weather-heading">
-                <div>
-                    <p class="weather-kicker">Condição atual</p>
-                    <h2>${name}, ${sys.country}</h2>
-                </div>
-                <div class="weather-status">
-                    ${cached ? '<span class="cached-badge">Dados em cache</span>' : ''}
-                    <span class="weather-time">Atualizado às ${updateTime}</span>
-                </div>
-            </div>
-            <div class="weather-snapshot">
-                <div class="temperature-container">
-                    <span class="temperature">${Math.round(main.temp)}°C</span>
-                    <p class="weather-description">${weather[0].description}</p>
-                </div>
-                <img src="https://openweathermap.org/img/wn/${weather[0].icon}@2x.png"
-                     alt="${weather[0].description}"
-                     class="weather-icon"
-                     loading="lazy"
-                     width="100"
-                     height="100">
-            </div>
-        </div>
-        <div class="weather-metrics">
-            <div class="metric-card">
-                <span class="metric-label">Sensação térmica</span>
-                <span class="metric-value">${Math.round(main.feels_like)}°C</span>
-            </div>
-            <div class="metric-card">
-                <span class="metric-label">Umidade</span>
-                <span class="metric-value">${main.humidity}%</span>
-            </div>
-            <div class="metric-card">
-                <span class="metric-label">Pressão</span>
-                <span class="metric-value">${main.pressure} hPa</span>
-            </div>
-            <div class="metric-card">
-                <span class="metric-label">Vento</span>
-                <span class="metric-value">${wind.speed} m/s</span>
-            </div>
-        </div>
-        <div class="update-info weather-footer">
-            <p>Atualização local: ${updateTime}</p>
-        </div>
-        <div class="weather-actions">
-            <button onclick="getAIAdvice()" class="ai-btn">🤖 Recomendações</button>
-            <button onclick="analyzeExtremePhenomena()" class="phenomena-btn">🌍 Fenômenos Extremos</button>
-        </div>
-        <div id="ai-advice" style="display: none;"></div>
-    `;
-
-    weatherElement.innerHTML = htmlContent;
+    const description = weather[0].description.charAt(0).toUpperCase() + weather[0].description.slice(1);
+    const windKmh = Math.round(wind.speed * 3.6);
+    const icon = weather[0].main.toLowerCase().includes('rain') ? 'rainy' : weather[0].main.toLowerCase().includes('cloud') ? 'partly_cloudy_day' : 'sunny';
+    document.getElementById('location-name').textContent = `${name}, ${sys.country}`;
+    document.getElementById('station-name').textContent = cached ? 'DADOS EM CACHE · ESTAÇÃO LOCAL' : 'RADAR ONLINE · ESTAÇÃO LOCAL';
+    weatherElement.innerHTML = `
+        <div class="status-pill"><span class="material-symbols-outlined">${icon}</span> RADAR ATIVO · AO VIVO</div>
+        <div class="hero-temperature">${Math.round(main.temp)}<sup>°</sup><span class="hero-weather-icon material-symbols-outlined">${icon}</span></div>
+        <h2>${description}</h2><p class="muted-text">Sensação de ${Math.round(main.feels_like)}°</p>
+        <div class="hero-range"><span>↑ Máx: ${Math.round(main.temp_max)}°</span><i></i><span>↓ Mín: ${Math.round(main.temp_min)}°</span></div>
+        <div class="metric-strip"><div><span>SENSAÇÃO</span><strong>${Math.round(main.feels_like)}°</strong></div><div><span>UMIDADE</span><strong>${main.humidity}%</strong></div><div><span>VENTO</span><strong>${windKmh} km/h</strong></div></div>`;
 }
 
 async function getAIAdvice() {
@@ -943,29 +974,12 @@ function displayHourlyForecast(data) {
         return;
     }
 
-    const next24Hours = data.hourly.slice(0, 24);
+    const next24Hours = data.hourly.slice(0, 8);
 
-    const htmlContent = `
-        <div class="hourly-forecast-container">
-            <h3>⏰ Previsão por Hora (24h)</h3>
-            <div class="hourly-grid">
-                ${next24Hours.map(hour => `
-                    <div class="hourly-item">
-                        <p class="hourly-time">${new Date(hour.dt * 1000).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</p>
-                        <img src="https://openweathermap.org/img/wn/${hour.weather[0].icon}.png"
-                             alt="${hour.weather[0].description}"
-                             class="hourly-icon"
-                             loading="lazy"
-                             width="40"
-                             height="40">
-                        <p class="hourly-temp">${Math.round(hour.temp)}°C</p>
-                        <p class="hourly-desc">${hour.weather[0].description}</p>
-                        <p class="hourly-humidity">💧 ${hour.humidity}%</p>
-                    </div>
-                `).join('')}
-            </div>
-        </div>
-    `;
+    const htmlContent = next24Hours.map((hour, index) => {
+        const icon = hour.weather[0].main.toLowerCase().includes('rain') ? 'rainy' : hour.weather[0].main.toLowerCase().includes('cloud') ? 'cloud' : 'sunny';
+        return `<article class="hourly-item"><p>${index === 0 ? 'Agora' : new Date(hour.dt * 1000).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</p><span class="material-symbols-outlined">${icon}</span><strong>${Math.round(hour.temp)}°</strong><p>💧 ${Math.round(hour.pop * 100)}%</p></article>`;
+    }).join('');
 
     hourlyElement.innerHTML = htmlContent;
     hourlyElement.style.display = 'block';
